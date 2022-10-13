@@ -1,0 +1,14 @@
+version: '3'
+
+services:
+  db:
+    image: postgres:14.3
+    restart: always
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_PASSWORD: 'ironman1'
+      POSTGRES_DB: 'casildaDB'
+    container_name: casilda
+    volumes:
+      - ./postgres:/var/lib/postgresql/data 
