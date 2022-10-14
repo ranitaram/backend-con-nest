@@ -16,7 +16,7 @@ export class Product {
     title: string;
 
     //su valor por defecto sera 0
-    @Column('numeric',{
+    @Column('float',{
         default: 0
     })
     price: number;
