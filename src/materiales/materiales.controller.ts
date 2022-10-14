@@ -1,7 +1,8 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, Query } from '@nestjs/common';
 import { MaterialesService } from './materiales.service';
 import { CreateMaterialeDto } from './dto/create-materiale.dto';
 import { UpdateMaterialeDto } from './dto/update-materiale.dto';
+import { PaginationDto } from '../common/dtos/pagination.dtos';
 
 @Controller('materiales')
 export class MaterialesController {
@@ -13,8 +14,8 @@ export class MaterialesController {
   }
 
   @Get()
-  findAll() {
-    return this.materialesService.findAll();
+  findAll(@Query()paginationDto: PaginationDto) {
+    return this.materialesService.findAll(paginationDto);
   }
 
   @Get(':id')

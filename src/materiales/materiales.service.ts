@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { CreateMaterialeDto } from './dto/create-materiale.dto';
 import { UpdateMaterialeDto } from './dto/update-materiale.dto';
 import { Material } from './entities/materiale.entity';
+import { PaginationDto } from '../common/dtos/pagination.dtos';
 
 
 @Injectable()
@@ -26,8 +27,13 @@ export class MaterialesService {
    }
   }
 
-  findAll() {
-    return this.materialRepository.find({});
+  findAll(pagnationDto: PaginationDto) {
+    const {limit = 10, offset = 5} = pagnationDto
+    return this.materialRepository.find({
+      take: limit,
+      skip: offset
+      //TODO: relaciones
+    });
   }
 
   async findOne(id: string) {

@@ -4,6 +4,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ProductsModule } from './products/products.module';
 import { MaterialesModule } from './materiales/materiales.module';
 
+import { CommonModule } from './common/common.module';
+
 
 @Module({
   imports: [
@@ -23,7 +25,11 @@ import { MaterialesModule } from './materiales/materiales.module';
 
     ProductsModule,
 
-    MaterialesModule
+    MaterialesModule,
+
+   
+
+    CommonModule
   ],
   
 })
