@@ -1,7 +1,7 @@
 //es lo que va a buscar tyorm para crearse la referencia en la base de datos
 //el entity es la representacion de este objeto en la 
 
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { BeforeInsert, Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 
 //base de datos osea este entity seria una tabla
 @Entity()
@@ -43,5 +43,21 @@ export class Product {
     sizes: string[]
 
     @Column('text')
-    gender: string
+    gender: string;
+
+    //tags
+    //image
+
+
+    @BeforeInsert()
+    checkSlugInsert(){
+        if (!this.slug) {
+            this.slug = this.title;
+        }
+
+        this.slug = this.slug
+        .toLowerCase()
+            .replaceAll(' ','_')
+            .replaceAll("'",'')
+    }
 }

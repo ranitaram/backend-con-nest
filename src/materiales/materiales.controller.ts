@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe } from '@nestjs/common';
 import { MaterialesService } from './materiales.service';
 import { CreateMaterialeDto } from './dto/create-materiale.dto';
 import { UpdateMaterialeDto } from './dto/update-materiale.dto';
@@ -18,8 +18,8 @@ export class MaterialesController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.materialesService.findOne(+id);
+  findOne(@Param('id', ParseUUIDPipe) id: string) {
+    return this.materialesService.findOne(id);
   }
 
   @Patch(':id')
@@ -28,7 +28,7 @@ export class MaterialesController {
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.materialesService.remove(+id);
+  remove(@Param('id', ParseUUIDPipe) id: string) {
+    return this.materialesService.remove(id);
   }
 }
