@@ -24,8 +24,10 @@ export class MaterialesController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateMaterialeDto: UpdateMaterialeDto) {
-    return this.materialesService.update(+id, updateMaterialeDto);
+  update(@Param('id', ParseUUIDPipe) id: string, 
+  @Body() updateMaterialeDto: UpdateMaterialeDto
+  ) {
+    return this.materialesService.update(id, updateMaterialeDto);
   }
 
   @Delete(':id')

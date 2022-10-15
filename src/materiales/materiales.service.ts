@@ -59,8 +59,21 @@ export class MaterialesService {
     return material;
   }
 
-  update(id: number, updateMaterialeDto: UpdateMaterialeDto) {
-    return `This action updates a #${id} materiale`;
+  async update(id: string, updateMaterialeDto: UpdateMaterialeDto) {
+    const material = await this.materialRepository.preload({
+      id: id,
+      ...updateMaterialeDto
+    });
+    if (!material) throw new NotFoundException(
+      `producto con ID ${id} no fue encontrado`);
+
+      try {
+        await this.materialRepository.save(material);
+        return material;
+        
+      } catch (error) {
+        this.handleDBExceptions(error);
+      }
   }
 
   async remove(id: string) {
