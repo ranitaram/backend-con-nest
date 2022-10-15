@@ -1,4 +1,4 @@
-import { IsInt, IsNumber, IsOptional, IsPositive, IsString, MinLength } from "class-validator";
+import { IsArray, IsInt, IsNumber, IsOptional, IsPositive, IsString, MinLength } from "class-validator";
 
 export class CreateMaterialeDto {
     @IsString()
@@ -22,4 +22,9 @@ export class CreateMaterialeDto {
     @IsString()
     @MinLength(2)
     obra?: string;
+
+    @IsString({each: true})
+    @IsArray()
+    @IsOptional()
+    tags: string[];
 }

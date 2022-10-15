@@ -26,7 +26,13 @@ export class Material {
     stock: number;
 
     @Column('text')
-    obra: string
+    obra: string;
+
+    @Column('text',{
+        array: true,
+        default: []
+    })
+    tags: string[]
 
     
 
