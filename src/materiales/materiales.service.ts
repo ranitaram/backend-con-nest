@@ -5,6 +5,7 @@ import { CreateMaterialeDto } from './dto/create-materiale.dto';
 import { UpdateMaterialeDto } from './dto/update-materiale.dto';
 import { Material } from './entities/materiale.entity';
 import { PaginationDto } from '../common/dtos/pagination.dtos';
+import {validate as isUUID} from 'uuid';
 
 
 @Injectable()
@@ -36,10 +37,24 @@ export class MaterialesService {
     });
   }
 
-  async findOne(id: string) {
-    const material = await this.materialRepository.findOneBy({id});
+  async findOne(term: string) {
+    let material : Material;
+
+    if (isUUID(term)) {
+      material = await this.materialRepository.findOneBy({id: term})
+    }
+    else {
+      //TODO Agregar mas atributos cuando haga la clase trabajador
+      const queryBuilder = this.materialRepository.createQueryBuilder();
+      material = await queryBuilder
+      .where(`UPPER(title) =:title`,{
+        title: term.toUpperCase()
+      }).getOne();
+    }
+    
+    // const material = await this.materialRepository.findOneBy({id});
     if (!material) {
-      throw new NotFoundException(`Producto con el id ${id} no fue encontrado`);
+      throw new NotFoundException(`Producto con el id ${term} no fue encontrado`);
     }
     return material;
   }

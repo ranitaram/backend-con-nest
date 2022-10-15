@@ -18,9 +18,9 @@ export class MaterialesController {
     return this.materialesService.findAll(paginationDto);
   }
 
-  @Get(':id')
-  findOne(@Param('id', ParseUUIDPipe) id: string) {
-    return this.materialesService.findOne(id);
+  @Get(':term')
+  findOne(@Param('term') term: string) {
+    return this.materialesService.findOne(term);
   }
 
   @Patch(':id')
