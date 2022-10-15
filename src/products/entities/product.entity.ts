@@ -1,7 +1,8 @@
 //es lo que va a buscar tyorm para crearse la referencia en la base de datos
 //el entity es la representacion de este objeto en la 
 
-import { BeforeInsert, BeforeUpdate, Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { BeforeInsert, BeforeUpdate, Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { ProductImage } from ".";
 
 //base de datos osea este entity seria una tabla
 @Entity()
@@ -50,7 +51,16 @@ export class Product {
         default: []
     })
     tags: string[];
+    
+    
     //image
+    //construimos la relacion con la tabla productImage
+    @OneToMany(
+        ()=> ProductImage,
+        (productImage)=> productImage.product,
+        {cascade: true}
+    )
+    images?: ProductImage;
 
 
     @BeforeInsert()

@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Product } from ".";
 
 //recordar importar el productImage en el products.Module
 @Entity()
@@ -10,4 +11,12 @@ export class ProductImage {
 
     @Column('text')
     url: string;
+
+    //importarlo del index
+    //esto no es una columna sino una relacion
+    @ManyToOne(
+        ()=> Product,
+        (product)=> product.images
+    )
+    product: Product
 }

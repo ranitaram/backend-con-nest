@@ -1,4 +1,6 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { MaterialImage } from ".";
+
 
 @Entity()
 export class Material {
@@ -32,7 +34,14 @@ export class Material {
         array: true,
         default: []
     })
-    tags: string[]
+    tags: string[];
+
+    @OneToMany(
+        ()=> MaterialImage,
+        (materialImage)=> materialImage.material,
+        {cascade:true}
+    )
+    images?: MaterialImage;
 
     
 
