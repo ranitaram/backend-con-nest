@@ -6,6 +6,7 @@ import { UpdateProductDto } from './dto/update-product.dto';
 import { Product } from './entities/product.entity';
 import { PaginationDto } from '../common/dtos/pagination.dtos';
 import { validate as isUUID} from 'uuid';
+import { ProductImage } from './entities';
 
 @Injectable()
 export class ProductsService {
@@ -14,7 +15,10 @@ export class ProductsService {
   
   constructor(
     @InjectRepository(Product)
-    private readonly productRepository: Repository<Product>
+    private readonly productRepository: Repository<Product>,
+
+    @InjectRepository(ProductImage)
+    private readonly productImageRepository: Repository<ProductImage>,
   ){}
   
   async create(createProductDto: CreateProductDto) {
@@ -32,15 +36,19 @@ export class ProductsService {
       //   .replaceAll("'",'')
       // }
 
-
+      const { images = [], ...productDetails} = createProductDto;
 
       //esto solo crea el producto pero no lo guarda
       const product = 
-      this.productRepository.create(createProductDto);
+      this.productRepository.create({
+        ...createProductDto,
+        images:images.map(image => this.productImageRepository
+          .create({url: image}))
+      });
       //y aqui para grabarlo e impactar la base de datos
       await this.productRepository.save(product);
       //y regreso el producto creado
-      return product;
+      return {...product, images};
     
     } catch (error) {
       this.handleDBExceptions(error);
@@ -86,7 +94,9 @@ export class ProductsService {
     const product = await this.productRepository.preload({
       //buscate el id y cargate todas sus propiedades del objeto
       id: id,
-      ...updateProductDto
+      ...updateProductDto,
+      //TODO: Temporal la parte de imagenes
+      images: []
     });
     if (!product) throw new NotFoundException(`producto con id ${id} no fue encontrado`); 
     

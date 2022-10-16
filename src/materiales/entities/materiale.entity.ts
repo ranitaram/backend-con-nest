@@ -41,7 +41,7 @@ export class Material {
         (materialImage)=> materialImage.material,
         {cascade:true}
     )
-    images?: MaterialImage;
+    images?: MaterialImage[];
 
     
 

@@ -6,6 +6,7 @@ import { UpdateMaterialeDto } from './dto/update-materiale.dto';
 import { Material } from './entities/materiale.entity';
 import { PaginationDto } from '../common/dtos/pagination.dtos';
 import {validate as isUUID} from 'uuid';
+import { MaterialImage } from './entities';
 
 
 @Injectable()
@@ -15,14 +16,26 @@ export class MaterialesService {
 
   constructor(
     @InjectRepository(Material)
-    private readonly materialRepository: Repository<Material>){}
+    private readonly materialRepository: Repository<Material>,
+
+    @InjectRepository(MaterialImage)
+    private readonly materialImageRepository: Repository<MaterialImage>
+    
+    ){}
 
   async create(createMaterialeDto: CreateMaterialeDto) {
    try {
-     const material = this.materialRepository.create(createMaterialeDto);
+    const { images = [], ...materialDetails } = createMaterialeDto;
+
+     const material = this.materialRepository
+     .create({...createMaterialeDto,
+      images: images.map(image=> this.materialImageRepository
+        .create({url: image})
+        )
+     });
 
      await this.materialRepository.save(material);
-     return material;
+     return {...material, images};
    } catch (error) {
      this.handleDBExceptions(error);
    }
@@ -62,7 +75,8 @@ export class MaterialesService {
   async update(id: string, updateMaterialeDto: UpdateMaterialeDto) {
     const material = await this.materialRepository.preload({
       id: id,
-      ...updateMaterialeDto
+      ...updateMaterialeDto,
+      images: []
     });
     if (!material) throw new NotFoundException(
       `producto con ID ${id} no fue encontrado`);
