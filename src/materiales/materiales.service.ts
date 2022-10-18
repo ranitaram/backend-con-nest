@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable, InternalServerErrorException, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { CreateMaterialeDto } from './dto/create-materiale.dto';
 import { UpdateMaterialeDto } from './dto/update-materiale.dto';
 import { Material } from './entities/materiale.entity';
@@ -19,7 +19,9 @@ export class MaterialesService {
     private readonly materialRepository: Repository<Material>,
 
     @InjectRepository(MaterialImage)
-    private readonly materialImageRepository: Repository<MaterialImage>
+    private readonly materialImageRepository: Repository<MaterialImage>,
+
+    private readonly dataSource: DataSource,
     
     ){}
 
@@ -89,13 +91,19 @@ export class MaterialesService {
   }
 
   async update(id: string, updateMaterialeDto: UpdateMaterialeDto) {
+    
+    const {images, ...toUpdate} = updateMaterialeDto;
+    
     const material = await this.materialRepository.preload({
-      id: id,
-      ...updateMaterialeDto,
-      images: []
+      id,
+      ...toUpdate,
+      
     });
+
     if (!material) throw new NotFoundException(
       `producto con ID ${id} no fue encontrado`);
+
+      const queryRunner = this.dataSource.createQueryRunner();
 
       try {
         await this.materialRepository.save(material);

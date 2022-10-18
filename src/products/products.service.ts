@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable, InternalServerErrorException, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { Product } from './entities/product.entity';
@@ -19,6 +19,8 @@ export class ProductsService {
 
     @InjectRepository(ProductImage)
     private readonly productImageRepository: Repository<ProductImage>,
+
+    private readonly dataSource: DataSource,
   ){}
   
   async create(createProductDto: CreateProductDto) {
@@ -110,16 +112,23 @@ export class ProductsService {
   }
 
   async update(id: string, updateProductDto: UpdateProductDto) {
+
+    //esta es la data que va a actualizar sin las imagenes
+    const {images, ...toUpdate} = updateProductDto;
+
     //esto solo lo prepara para la actualizacion
     const product = await this.productRepository.preload({
       //buscate el id y cargate todas sus propiedades del objeto
-      id: id,
-      ...updateProductDto,
-      //TODO: Temporal la parte de imagenes
-      images: []
+       id,  ...toUpdate,
     });
+    
     if (!product) throw new NotFoundException(`producto con id ${id} no fue encontrado`); 
     
+    //tenemos que evaluar si vienen las imagenes
+    //Create query runner
+    const queryRunner = this.dataSource.createQueryRunner();
+    
+
     try {
       await this.productRepository.save(product);
       return product; 
