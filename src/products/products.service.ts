@@ -56,14 +56,22 @@ export class ProductsService {
   }
 
   //TODO: Paginar, para no regresar cientos de productos si llegaramos a tenerlos
-  findAll(paginationDto: PaginationDto) {
+  async findAll(paginationDto: PaginationDto) {
     //desestructurar
     const { limit = 10, offset = 0} = paginationDto;
-    return this.productRepository.find({
+    const products= await this.productRepository.find({
       take: limit, //toma el limite
       skip: offset, //saltate lo que diga el offset
-      //TODO: relaciones
+      relations: {
+        images: true,
+      }
     });
+
+    //regresamos un objeto implicito
+    return products.map(product => ({
+      ...product,
+      images: product.images.map(img => img.url)
+    }) )
   }
 
   async findOne(term: string) {
@@ -74,12 +82,16 @@ export class ProductsService {
 
     }else {
       //product = await this.productRepository.findOneBy({slug: term});
-      const queryBuilder = this.productRepository.createQueryBuilder();
+      //el prod seria un alias para la tabla
+      const queryBuilder = this.productRepository.createQueryBuilder('prod');
       product = await queryBuilder
       .where(`UPPER(title) =:title or slug =:slug`,{
         title: term.toUpperCase(),
         slug: term.toLowerCase(),
-      }).getOne();
+      })
+      //tambien le tenemos que poner un alias a la tabla de imagnes del producto
+      .leftJoinAndSelect('prod.images','prodImages')
+      .getOne();
     }
 
     // const product = await this.productRepository.findOneBy({id});
@@ -87,6 +99,14 @@ export class ProductsService {
       throw new NotFoundException(`Producto con el id ${ term } no fue encontrado`);
     }
     return product; 
+  }
+
+  async findOnePlain(term: string){
+    const {images = [], ...prod} = await this.findOne(term);
+    return {
+      ...prod,
+      images: images.map(image => image.url)
+    }
   }
 
   async update(id: string, updateProductDto: UpdateProductDto) {

@@ -41,13 +41,19 @@ export class MaterialesService {
    }
   }
 
-  findAll(pagnationDto: PaginationDto) {
+  async findAll(pagnationDto: PaginationDto) {
     const {limit = 10, offset = 5} = pagnationDto
-    return this.materialRepository.find({
+    const materiales = await this.materialRepository.find({
       take: limit,
-      skip: offset
-      //TODO: relaciones
+      skip: offset,
+      relations: {
+        images: true
+      }
     });
+    return materiales.map(material => ({
+      ...materiales,
+      images: material.images.map( img => img.url)
+    }))
   }
 
   async findOne(term: string) {
@@ -58,11 +64,13 @@ export class MaterialesService {
     }
     else {
       //TODO Agregar mas atributos cuando haga la clase trabajador
-      const queryBuilder = this.materialRepository.createQueryBuilder();
+      const queryBuilder = this.materialRepository.createQueryBuilder('mate');
       material = await queryBuilder
       .where(`UPPER(title) =:title`,{
         title: term.toUpperCase()
-      }).getOne();
+      })
+      .leftJoinAndSelect('mate.images', 'mateImages')
+      .getOne();
     }
     
     // const material = await this.materialRepository.findOneBy({id});
@@ -70,6 +78,14 @@ export class MaterialesService {
       throw new NotFoundException(`Producto con el id ${term} no fue encontrado`);
     }
     return material;
+  }
+
+  async findOnePlain(term: string){
+    const { images = [], ...mate} = await this.findOne(term);
+    return {
+      ...mate,
+      images: images.map(image=> image.url)
+    }
   }
 
   async update(id: string, updateMaterialeDto: UpdateMaterialeDto) {

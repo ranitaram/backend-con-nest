@@ -39,7 +39,9 @@ export class Material {
     @OneToMany(
         ()=> MaterialImage,
         (materialImage)=> materialImage.material,
-        {cascade:true}
+        {cascade:true,
+         eager:true
+        }
     )
     images?: MaterialImage[];
 
