@@ -3,7 +3,10 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { CreateTrabajadoreDto } from './dto/create-trabajadore.dto';
 import { UpdateTrabajadoreDto } from './dto/update-trabajadore.dto';
 import { Trabajador } from './entities/trabajadore.entity';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
+import {validate as isUUID} from 'uuid'
+import { PaginationDto } from '../common/dtos/pagination.dtos';
+import { TrabajadorImage } from './entities';
 
 @Injectable()
 export class TrabajadoresService {
@@ -11,6 +14,11 @@ export class TrabajadoresService {
   constructor(
     @InjectRepository(Trabajador)
     private readonly trabajadorRepository: Repository<Trabajador>,
+
+    @InjectRepository(TrabajadorImage)
+    private readonly trabajadorImageRepository: Repository<TrabajadorImage>,
+
+    private readonly dataSource: DataSource,
 
   ){}
 
@@ -22,7 +30,7 @@ export class TrabajadoresService {
     return 'This action adds a new trabajadore';
   }
 
-  findAll() {
+  async findAll(paginationDto: PaginationDto) {
     return `This action returns all trabajadores`;
   }
 

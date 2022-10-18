@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { TrabajadorImage } from './trabajador-image.entity';
 
 @Entity()
 export class Trabajador {
@@ -18,6 +19,15 @@ export class Trabajador {
     @Column('text')
     oficioOprofesion: string;
 
+    @OneToMany(
+        ()=> TrabajadorImage,
+        (trabajadorImage)=>trabajadorImage.trabajador,
+        {
+            cascade: true,
+            eager: true
+        }
+    )
+        images?: TrabajadorImage[];
 
 
 
