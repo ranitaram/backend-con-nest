@@ -1,4 +1,4 @@
-//es lo que va a buscar tyorm para crearse la referencia en la base de datos
+//es lo que va a buscar type orm para crearse la referencia en la base de datos
 //el entity es la representacion de este objeto en la 
 
 import { BeforeInsert, BeforeUpdate, Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
