@@ -20,12 +20,13 @@ export class TrabajadoresController {
 
   @Get(':term')
   findOne(@Param('term') term: string) {
-    return this.trabajadoresService.findOne(term);
+    return this.trabajadoresService.findOnePlain(term);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateTrabajadoreDto: UpdateTrabajadoreDto) {
-    return this.trabajadoresService.update(+id, updateTrabajadoreDto);
+  update(@Param('id', ParseUUIDPipe) id: string, 
+  @Body() updateTrabajadoreDto: UpdateTrabajadoreDto) {
+    return this.trabajadoresService.update(id, updateTrabajadoreDto);
   }
 
   @Delete(':id')

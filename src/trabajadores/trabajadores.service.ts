@@ -82,6 +82,7 @@ export class TrabajadoresService {
       trabajador = await queryBuilder
       .where(`UPPER(nombre) =:nombre`,{
         nombre: term.toUpperCase(),
+        
       })
       .leftJoinAndSelect('trab.images','trabImages')
       .getOne();
@@ -93,13 +94,39 @@ export class TrabajadoresService {
     return trabajador;
   }
 
-  update(id: number, updateTrabajadoreDto: UpdateTrabajadoreDto) {
-    return `This action updates a #${id} trabajadore`;
+  async findOnePlain(term: string){
+    const {images = [], ...trab} = await this.findOne(term);
+
+    return {
+     ...trab,
+     images: images.map(image=> image.url)
+    }
+  }
+
+  
+  async update(id: string, updateTrabajadoreDto: UpdateTrabajadoreDto) {
+    const {images,  ...toUpdate} = updateTrabajadoreDto;
+
+    const trabajador = await this.trabajadorRepository.preload({
+      id, ...toUpdate,
+    });
+
+    if(!trabajador) throw new NotFoundException(
+    `trabajador con id ${id} no fue encontrado`
+    );
+    const queryRunner = this.dataSource.createQueryBuilder();
+
+    try {
+      await this.trabajadorRepository.save(trabajador);
+      return trabajador;
+    } catch (error) {
+      this.handleDBExceptions(error);
+    }
   }
 
   async remove(id: string) {
-    // const trabajador = await this.findOne(id);
-    // await this.trabajadorRepository.remove(trabajador)
+    const trabajador = await this.findOne(id);
+    await this.trabajadorRepository.remove(trabajador)
   }
 
   private handleDBExceptions(error: any){
