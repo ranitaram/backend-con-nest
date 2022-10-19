@@ -1,4 +1,4 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateTrabajadoreDto } from './dto/create-trabajadore.dto';
 import { UpdateTrabajadoreDto } from './dto/update-trabajadore.dto';
@@ -10,6 +10,8 @@ import { TrabajadorImage } from './entities';
 
 @Injectable()
 export class TrabajadoresService {
+
+  private readonly logger = new Logger('TrabajadoresService');
 
   constructor(
     @InjectRepository(Trabajador)
@@ -26,31 +28,89 @@ export class TrabajadoresService {
 
 
 
-  create(createTrabajadoreDto: CreateTrabajadoreDto) {
-    return 'This action adds a new trabajadore';
+  async create(createTrabajadoreDto: CreateTrabajadoreDto) {
+
+    try {
+      
+      const {images = [], ...trabajadorDetails} = createTrabajadoreDto;
+  
+      const trabajador =
+      this.trabajadorRepository.create({
+        ...createTrabajadoreDto,
+        images: images.map(image=> this.trabajadorImageRepository
+          .create({url: image}))
+      });
+  
+      await this.trabajadorRepository.save(trabajador);
+  
+      return {...trabajador, images};
+
+    } catch (error) {
+      this.handleDBExceptions(error);
+    }
+    
   }
 
   async findAll(paginationDto: PaginationDto) {
-    return `This action returns all trabajadores`;
+    
+    const {limit = 10, offset = 0} = paginationDto;
+    const trabajadores = await this.trabajadorRepository
+    .find({
+      take: limit,
+      skip: offset,
+      relations: {
+        images: true,
+      }
+    });
+
+    return trabajadores.map(trabajador=> ({
+      ...trabajador,
+      images: trabajador.images.map(img => img.url)
+    }));
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} trabajadore`;
+  async findOne(term: string) {
+    let trabajador: Trabajador;
+    if(isUUID(term)){
+      trabajador = await this.trabajadorRepository
+      .findOneBy({
+        id: term
+      });
+    }else {
+      const queryBuilder = this.trabajadorRepository
+      .createQueryBuilder('trab');
+      trabajador = await queryBuilder
+      .where(`UPPER(nombre) =:nombre`,{
+        nombre: term.toUpperCase(),
+      })
+      .leftJoinAndSelect('trab.images','trabImages')
+      .getOne();
+    }
+    if (!trabajador) {
+      throw new NotFoundException(`Trabajador con el nombre ${term} no fué encontrado`);
+
+    }
+    return trabajador;
   }
 
   update(id: number, updateTrabajadoreDto: UpdateTrabajadoreDto) {
     return `This action updates a #${id} trabajadore`;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} trabajadore`;
+  async remove(id: string) {
+    // const trabajador = await this.findOne(id);
+    // await this.trabajadorRepository.remove(trabajador)
   }
 
   private handleDBExceptions(error: any){
 
     if (error.code === '23505') 
+    
+    throw new BadRequestException(error.detail);
+
+    this.logger.error(error)
     throw new InternalServerErrorException(
       'Unexpected error, check server logs'
-    );
+    )
   }
 }

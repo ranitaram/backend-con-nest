@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseUUIDPipe } from '@nestjs/common';
 import { TrabajadoresService } from './trabajadores.service';
 import { CreateTrabajadoreDto } from './dto/create-trabajadore.dto';
 import { UpdateTrabajadoreDto } from './dto/update-trabajadore.dto';
@@ -18,9 +18,9 @@ export class TrabajadoresController {
     return this.trabajadoresService.findAll(paginationDto);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.trabajadoresService.findOne(+id);
+  @Get(':term')
+  findOne(@Param('term') term: string) {
+    return this.trabajadoresService.findOne(term);
   }
 
   @Patch(':id')
@@ -29,7 +29,7 @@ export class TrabajadoresController {
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.trabajadoresService.remove(+id);
+  remove(@Param('id', ParseUUIDPipe) id: string) {
+    return this.trabajadoresService.remove(id);
   }
 }
