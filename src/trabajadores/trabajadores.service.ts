@@ -114,12 +114,37 @@ export class TrabajadoresService {
     if(!trabajador) throw new NotFoundException(
     `trabajador con id ${id} no fue encontrado`
     );
-    const queryRunner = this.dataSource.createQueryBuilder();
+    
+    
+    const queryRunner = this.dataSource.createQueryRunner();
+
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    
 
     try {
-      await this.trabajadorRepository.save(trabajador);
-      return trabajador;
+
+      if (images) {
+        await queryRunner.manager.delete(
+          TrabajadorImage, {trabajador: {id}})
+
+          trabajador.images = images.map(
+            image=> this.trabajadorImageRepository
+            .create({url: image})
+          )
+      } else {
+
+      }
+
+      await queryRunner.manager.save(trabajador);
+      await queryRunner.release();
+      
+      return this.findOnePlain(id);
     } catch (error) {
+      
+      await queryRunner.rollbackTransaction();
+      await queryRunner.release();
       this.handleDBExceptions(error);
     }
   }

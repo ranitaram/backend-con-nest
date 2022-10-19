@@ -127,13 +127,44 @@ export class ProductsService {
     //tenemos que evaluar si vienen las imagenes
     //Create query runner
     const queryRunner = this.dataSource.createQueryRunner();
+    //para conectar a la base de datos y hacer la transaccion
+    await queryRunner.connect();
+    //inicializamos nuestro objeto
+    await queryRunner.startTransaction();
+
     
 
     try {
-      await this.productRepository.save(product);
-      return product; 
+      //evaluamos si vienen imagenes para eliminarsi es que vienen
+      if(images){
+        //aqui nos pide a que tabla queremos afectar para eliminar
+        //y luego el criterio
+        await queryRunner.manager.delete(ProductImage, {product: {id}})
+        //ya con esto borramos las imagenes anteriores
+        product.images = images.map(
+          image => this.productImageRepository
+          .create({url: image})
+        )
+      } else {
+
+      }
+
+      await queryRunner.manager.save(product);
+
+      //aqui abajo hace el commit de la transaccion
+      //despues de usar el release, este se desconecta y ya no funciona
+      await queryRunner.release();
+
+
+      
+      //await this.productRepository.save(product);
+      return this.findOnePlain(id);
       
     } catch (error) {
+      //para revertir los cambios si algo sale mal
+      //dejamos los query runner afuera para poderlos usar bien en el try y catch
+      await queryRunner.rollbackTransaction();
+      await queryRunner.release();
       this.handleDBExceptions(error);
     }
 

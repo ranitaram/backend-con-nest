@@ -105,11 +105,28 @@ export class MaterialesService {
 
       const queryRunner = this.dataSource.createQueryRunner();
 
+      await queryRunner.connect();
+      await queryRunner.startTransaction();
+
       try {
-        await this.materialRepository.save(material);
-        return material;
+
+        if (images) {
+          await queryRunner.manager.delete(
+            MaterialImage, {material: {id}})
+            
+            material.images = 
+            images.map(image=> this.materialImageRepository
+            .create({url: image})  
+          )
+        }
+
+        await queryRunner.manager.save(material);
+        await queryRunner.release();
+        return this.findOnePlain(id);
         
       } catch (error) {
+        await queryRunner.rollbackTransaction();
+        await queryRunner.release();
         this.handleDBExceptions(error);
       }
   }
