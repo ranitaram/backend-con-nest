@@ -13,7 +13,8 @@ export class MaterialImage{
 
     @ManyToOne(
         ()=>Material,
-        (material)=> material.images
+        (material)=> material.images,
+        {onDelete: 'CASCADE'}
     )
     material: Material
 

@@ -177,6 +177,8 @@ export class ProductsService {
     await this.productRepository.remove(product);
   }
 
+  
+  
   private handleDBExceptions(error: any){
     if (error.code === '23505') 
     throw new BadRequestException(error.detail);
@@ -187,5 +189,22 @@ export class ProductsService {
     );
       
     
+  }
+
+
+  //seria para eliminar de forma destruciva, pero solo o debemos
+  //de usar en modo desarrollo para eliminar nuestra semilla
+  async deleteAllProducts(){
+    const query = this.productRepository
+    .createQueryBuilder('product');
+
+    try {
+      return await query
+      .delete()
+      .where({})
+      .execute();
+    } catch (error) {
+      this.handleDBExceptions(error);
+    }
   }
 }

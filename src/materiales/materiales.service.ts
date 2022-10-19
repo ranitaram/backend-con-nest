@@ -147,4 +147,18 @@ export class MaterialesService {
       'Unexpected error, check server logs'
     );
 }
+
+async deleleAllMateriales(){
+  const query = this.materialRepository
+  .createQueryBuilder('material');
+
+  try {
+    return await query
+    .delete()
+    .where({})
+    .execute();
+  } catch (error) {
+    this.handleDBExceptions(error);
+  }
+}
 }

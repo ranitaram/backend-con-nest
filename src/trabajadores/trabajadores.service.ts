@@ -165,4 +165,18 @@ export class TrabajadoresService {
       'Unexpected error, check server logs'
     )
   }
+
+  async deleteAllTrabajadores(){
+    const query = this.trabajadorRepository
+    .createQueryBuilder('trabajador');
+
+    try {
+      return await query
+      .delete()
+      .where({})
+      .execute();
+    } catch (error) {
+      this.handleDBExceptions(error);
+    }
+  }
 }

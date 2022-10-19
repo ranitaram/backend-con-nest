@@ -16,7 +16,8 @@ export class ProductImage {
     //esto no es una columna sino una relacion
     @ManyToOne(
         ()=> Product,
-        (product)=> product.images
+        (product)=> product.images,
+        {onDelete: 'CASCADE'}
     )
     product: Product
 }

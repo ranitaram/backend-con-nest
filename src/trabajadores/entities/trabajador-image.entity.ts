@@ -13,7 +13,8 @@ export class TrabajadorImage {
 
     @ManyToOne(
         ()=> Trabajador,
-        (trabajador)=> trabajador.images
+        (trabajador)=> trabajador.images,
+        {onDelete: 'CASCADE'}
     )
     trabajador: Trabajador
 
