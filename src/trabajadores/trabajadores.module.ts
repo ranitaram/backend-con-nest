@@ -9,6 +9,12 @@ import { TrabajadorImage, Trabajador } from './entities';
   providers: [TrabajadoresService],
   imports: [
     TypeOrmModule.forFeature(
-      [Trabajador, TrabajadorImage])]
+      [Trabajador, TrabajadorImage])],
+  //exporto mi servicio para poderlo usar en otros modulos    
+  //tambien exporto mis 2 repositorios de una vez por si los necesito mas adelante
+  exports: [
+    TrabajadoresService,
+    TypeOrmModule
+  ]    
 })
 export class TrabajadoresModule {}
