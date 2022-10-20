@@ -7,6 +7,7 @@ import { MaterialesModule } from './materiales/materiales.module';
 import { CommonModule } from './common/common.module';
 import { TrabajadoresModule } from './trabajadores/trabajadores.module';
 import { SeedModule } from './seed/seed.module';
+import { FilesModule } from './files/files.module';
 
 
 @Module({
@@ -39,7 +40,11 @@ import { SeedModule } from './seed/seed.module';
 
    
 
-    SeedModule
+    SeedModule,
+
+   
+
+    FilesModule
   ],
   
 })
